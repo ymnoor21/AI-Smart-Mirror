@@ -14,11 +14,11 @@ from speech import Speech
 from knowledge import Knowledge
 from vision import Vision
 
-my_name = "Aaron"
-launch_phrase = "ok mirror"
+my_name = "Yamin"
+launch_phrase = "lisa"
 use_launch_phrase = True
-weather_api_token = "<weather_token>"
-wit_ai_token = "<wit.ai_token>"
+weather_api_token = "d9fe561258dda2f6a95b6db2df7e36ed"
+wit_ai_token = "Bearer A5DAZJGFDHQQXMYEAHTMM4YVQGCXG7RP"
 debugger_enabled = True
 camera = 0
 
