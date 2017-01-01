@@ -116,26 +116,3 @@ class FacebookKnowledge(object):
             return len(comments)
         else:
             return 0
-
-
-if __name__ == "__main__":
-    fbk = FacebookKnowledge()
-    data = fbk.get_last_post_info()
-
-    if data:
-        try:
-            message = data['message']
-        except KeyError:
-            message = data['story']
-
-        reactions = fbk.get_reactions()
-        reactions_count = fbk.get_total_likes_count()
-        comments_count = fbk.get_comments_count()
-        comments = fbk.get_comments()
-
-        print(reactions)
-        print(reactions_count)
-        print(comments_count)
-        print(comments)
-
-
