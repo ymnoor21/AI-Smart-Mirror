@@ -1,5 +1,5 @@
 import facebook
-
+from dateutil import parser
 
 class ReactionEnum(enumerate):
     LIKE = 'LIKE'
@@ -40,7 +40,7 @@ class FacebookKnowledge(object):
         if self.data:
             return self.data['reactions']['data']
         else:
-            return None
+            return []
 
     def get_reactions_count(self):
         reactions = self.get_reactions()
@@ -71,13 +71,28 @@ class FacebookKnowledge(object):
                 'angry': angry,
             }
         else:
-            return None
+            return {}
 
     def get_comments(self):
+        comments_list = []
+
         if self.data:
-            return self.data['comments']['data']
-        else:
-            return None
+            comments = self.data['comments']['data']
+
+            if comments:
+                for comment in comments:
+                    dt = parser.parse(comment['created_time'])
+                    cmt_created_at = dt.strftime("%b %d, %Y %I:%M%p")
+                    cmt_message = comment['message']
+                    cmt_by = comment['from']['name']
+
+                    comments_list.append({
+                        'comment_by': cmt_by,
+                        'comment': cmt_message,
+                        'created_by': cmt_created_at,
+                    })
+
+        return comments_list
 
     def get_comments_count(self):
         comments = self.get_comments()
@@ -88,17 +103,24 @@ class FacebookKnowledge(object):
             return 0
 
 
-if __name__ == "__main__":
-    fbk = FacebookKnowledge()
-    data = fbk.get_last_post_info()
+# if __name__ == "__main__":
+#     fbk = FacebookKnowledge()
+#     data = fbk.get_last_post_info()
+#
+#     if data:
+#         try:
+#             message = data['message']
+#         except KeyError:
+#             message = data['story']
+#
+#         reactions = fbk.get_reactions()
+#         reactions_count = fbk.get_reactions_count()
+#         comments_count = fbk.get_comments_count()
+#         comments = fbk.get_comments()
+#
+#         print(reactions)
+#         print(reactions_count)
+#         print(comments_count)
+#         print(comments)
 
-    if data:
-        try:
-            message = data['message']
-        except KeyError:
-            message = data['story']
-
-        reactions_count = fbk.get_reactions_count()
-
-        print(fbk.get_comments_count())
 
