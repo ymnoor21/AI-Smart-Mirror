@@ -13,6 +13,7 @@ from nlg import NLG
 from speech import Speech
 from knowledge import Knowledge
 from vision import Vision
+import facebookknowledge as fbk
 
 my_name = "Yamin"
 launch_phrase = "lisa"
@@ -98,6 +99,8 @@ class Bot(object):
                 elif intent == 'appreciation':
                     self.__appreciation_action()
                     return
+                elif intent == 'facebook':
+                    self.__facebook_action()
                 else: # No recognized intent
                     self.__text_action("I'm sorry, I don't know about that yet.")
                     return
@@ -110,6 +113,45 @@ class Bot(object):
                 return
 
             self.decide_action()
+
+    def __facebook_action(self):
+        fb = fbk.FacebookKnowledge()
+        data = fb.get_last_post_info()
+
+        if data:
+            text = "Here's the update on your last post"
+            self.speech.synthesize_text(text)
+
+            try:
+                message = data['message']
+            except KeyError:
+                message = data['story']
+
+            likes_count = fb.get_total_likes_count()
+            comments_count = fb.get_comments_count()
+
+            screen_text = "<div style='text-align: left'>My last Facebook " \
+                          "post:<br/>"
+            screen_text += "\"" + message + "\"<br/><br/>"
+            screen_text += "Likes: {}, Comments: {}".format(likes_count,
+                                                         comments_count)
+
+            comments = fb.get_comments()
+
+            if comments:
+                screen_text += "<br/><br/>Comment(s):<br/>"
+                index = 1
+                for comment in comments:
+                    screen_text += "\"" + str(index) + ". " + \
+                        comment['comment'] + "\" by " +\
+                        comment['comment_by'] + " at " +\
+                        str(comment['created_by']) + "<br/>"
+                    index += 1
+
+                screen_text += "</div>"
+
+            requests.get("http://localhost:8080/statement?text=%s" % screen_text)
+
 
     def __joke_action(self):
         joke = self.nlg.joke()

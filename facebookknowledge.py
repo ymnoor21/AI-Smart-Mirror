@@ -73,6 +73,21 @@ class FacebookKnowledge(object):
         else:
             return {}
 
+    def get_total_likes_count(self):
+        reactions_count = self.get_reactions_count()
+
+        if reactions_count:
+            total = reactions_count['like'] +\
+                    reactions_count['love'] +\
+                    reactions_count['haha'] +\
+                    reactions_count['wow'] +\
+                    reactions_count['sad'] +\
+                    reactions_count['angry']
+
+            return total
+        else:
+            return 0
+
     def get_comments(self):
         comments_list = []
 
@@ -103,24 +118,24 @@ class FacebookKnowledge(object):
             return 0
 
 
-# if __name__ == "__main__":
-#     fbk = FacebookKnowledge()
-#     data = fbk.get_last_post_info()
-#
-#     if data:
-#         try:
-#             message = data['message']
-#         except KeyError:
-#             message = data['story']
-#
-#         reactions = fbk.get_reactions()
-#         reactions_count = fbk.get_reactions_count()
-#         comments_count = fbk.get_comments_count()
-#         comments = fbk.get_comments()
-#
-#         print(reactions)
-#         print(reactions_count)
-#         print(comments_count)
-#         print(comments)
+if __name__ == "__main__":
+    fbk = FacebookKnowledge()
+    data = fbk.get_last_post_info()
+
+    if data:
+        try:
+            message = data['message']
+        except KeyError:
+            message = data['story']
+
+        reactions = fbk.get_reactions()
+        reactions_count = fbk.get_total_likes_count()
+        comments_count = fbk.get_comments_count()
+        comments = fbk.get_comments()
+
+        print(reactions)
+        print(reactions_count)
+        print(comments_count)
+        print(comments)
 
 
