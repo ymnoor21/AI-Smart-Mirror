@@ -1,5 +1,6 @@
 import facebook
 from dateutil import parser
+import feedparser
 
 class ReactionEnum(enumerate):
     LIKE = 'LIKE'
@@ -14,9 +15,9 @@ class FacebookKnowledge(object):
     def __init__(self):
         # https://developers.facebook.com/tools/accesstoken/
         self.user_token = \
-            "EAAa4YDLtrSMBAELcZCGmzroCZBQuC04HlPs4yV95XbjdKBGLR" \
-            "YCyCGMTABniflPnPkBWTwdV7q9PU5zViHDmLQs2r8kZBKgC9di" \
-            "3a0f8z7hBjElZC1u7k98vAXOxcduZCJCnnvX7LklyH6PoPxd8G"
+            "EAAa4YDLtrSMBAA3qgBrgaHdPyey4mQLRWmn57Vjsx4TO28N9C" \
+            "PEuukSNJBLbQZAv6k9MaosECeQ37viywNTm1AZBOHo20KU2K1Z" \
+            "CZCYg7sW8DK1wwiYZA8rTPTZAbUpTy2QXfSo9B8YVOWOLu8DF9r"
 
         # Facebook API Version
         self.version = "2.8"
