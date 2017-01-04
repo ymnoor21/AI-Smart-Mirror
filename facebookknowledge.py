@@ -14,10 +14,7 @@ class ReactionEnum(enumerate):
 class FacebookKnowledge(object):
     def __init__(self):
         # https://developers.facebook.com/tools/accesstoken/
-        self.user_token = \
-            "EAAa4YDLtrSMBAA3qgBrgaHdPyey4mQLRWmn57Vjsx4TO28N9C" \
-            "PEuukSNJBLbQZAv6k9MaosECeQ37viywNTm1AZBOHo20KU2K1Z" \
-            "CZCYg7sW8DK1wwiYZA8rTPTZAbUpTy2QXfSo9B8YVOWOLu8DF9r"
+        self.user_token = "user_token goes here"
 
         # Facebook API Version
         self.version = "2.8"
