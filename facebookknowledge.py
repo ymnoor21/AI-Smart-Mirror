@@ -1,6 +1,8 @@
 import facebook
+from config import Config
 from dateutil import parser
 import feedparser
+
 
 class ReactionEnum(enumerate):
     LIKE = 'LIKE'
@@ -14,7 +16,7 @@ class ReactionEnum(enumerate):
 class FacebookKnowledge(object):
     def __init__(self):
         # https://developers.facebook.com/tools/accesstoken/
-        self.user_token = "user_token goes here"
+        self.user_token = Config.fb_user_token
 
         # Facebook API Version
         self.version = "2.8"
@@ -114,3 +116,4 @@ class FacebookKnowledge(object):
             return len(comments)
         else:
             return 0
+
