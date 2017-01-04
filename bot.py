@@ -142,7 +142,7 @@ class Bot(object):
                 screen_text += "<br/><br/>Comment(s):<br/>"
                 index = 1
                 for comment in comments:
-                    screen_text += "\"" + str(index) + ". " + \
+                    screen_text += str(index) + ". \"" + \
                         comment['comment'] + "\" by " +\
                         comment['comment_by'] + " at " +\
                         str(comment['created_by']) + "<br/>"
