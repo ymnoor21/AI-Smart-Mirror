@@ -13,13 +13,14 @@ from nlg import NLG
 from speech import Speech
 from knowledge import Knowledge
 from vision import Vision
+from config import Config
 import facebookknowledge as fbk
 
 my_name = "Yamin"
 launch_phrase = "lisa"
 use_launch_phrase = True
-weather_api_token = "d9fe561258dda2f6a95b6db2df7e36ed"
-wit_ai_token = "Bearer A5DAZJGFDHQQXMYEAHTMM4YVQGCXG7RP"
+weather_api_token = Config.weather_api_token
+wit_ai_token = Config.wit_ai_token
 debugger_enabled = True
 camera = 0
 
