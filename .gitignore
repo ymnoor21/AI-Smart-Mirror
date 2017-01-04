@@ -2,4 +2,4 @@
 .idea
 hhsmartmirror
 .DS_Store
-config.py
+config.py*
