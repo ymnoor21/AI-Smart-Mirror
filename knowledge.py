@@ -2,7 +2,7 @@ import requests
 import json
 import feedparser
 import datetime
-
+from config import Config
 
 class Knowledge(object):
     def __init__(self, weather_api_token, news_country_code='us'):
@@ -31,10 +31,13 @@ class Knowledge(object):
         return {'temperature': temperature, 'icon': icon, 'windSpeed': wind_speed, 'current_forecast': current_forecast, 'hourly_forecast': hourly_forecast, 'daily_forecast': daily_forecast, 'weekly_forecast': weekly_forecast}
 
     def get_location(self):
-        # get location
-        location_req_url = "http://freegeoip.net/json/%s" % self.get_ip()
-        r = requests.get(location_req_url)
-        location_obj = json.loads(r.text)
+        if Config.user_location:
+            location_obj = Config.user_location
+        else:
+            # get location
+            location_req_url = "http://freegeoip.net/json/%s" % self.get_ip()
+            r = requests.get(location_req_url)
+            location_obj = json.loads(r.text)
 
         lat = location_obj['latitude']
         lon = location_obj['longitude']
