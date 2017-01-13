@@ -16,8 +16,8 @@ from vision import Vision
 from config import Config
 import facebookknowledge as fbk
 
-my_name = "Yamin"
-launch_phrase = "lisa"
+my_name = Config.my_name
+launch_phrase = Config.launch_phrase
 use_launch_phrase = True
 weather_api_token = Config.weather_api_token
 wit_ai_token = Config.wit_ai_token

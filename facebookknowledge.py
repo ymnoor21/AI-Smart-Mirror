@@ -38,7 +38,10 @@ class FacebookKnowledge(object):
 
     def get_reactions(self):
         if self.data:
-            return self.data['reactions']['data']
+            try:
+                return self.data['reactions']['data']
+            except KeyError:
+                return []
         else:
             return []
 
@@ -92,9 +95,9 @@ class FacebookKnowledge(object):
         comments_list = []
 
         if self.data:
-            comments = self.data['comments']['data']
+            try:
+                comments = self.data['comments']['data']
 
-            if comments:
                 for comment in comments:
                     dt = parser.parse(comment['created_time'])
                     cmt_created_at = dt.strftime("%b %d, %Y %I:%M%p")
@@ -106,6 +109,8 @@ class FacebookKnowledge(object):
                         'comment': cmt_message,
                         'created_by': cmt_created_at,
                     })
+            except KeyError:
+                comments_list = []
 
         return comments_list
 
