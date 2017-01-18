@@ -102,6 +102,10 @@ class Bot(object):
                     return
                 elif intent == 'facebook':
                     self.__facebook_action()
+                elif intent == 'time':
+                    self.__time_action()
+                elif intent == 'date':
+                    self.__date_action()
                 else: # No recognized intent
                     self.__text_action("I'm sorry, I don't know about that yet.")
                     return
@@ -153,6 +157,13 @@ class Bot(object):
 
             requests.get("http://localhost:8080/statement?text=%s" % screen_text)
 
+    def __time_action(self):
+        time_now = datetime.datetime.now().strftime("%I %M %p")
+        self.__text_action(time_now)
+
+    def __date_action(self):
+        time_now = self.__custom_strftime("%B {S} %Y", datetime.datetime.now())
+        self.__text_action(time_now)
 
     def __joke_action(self):
         joke = self.nlg.joke()
@@ -291,6 +302,12 @@ class Bot(object):
 
         # next year
         return holidays[0]
+
+    def __date_suffix(self, d):
+        return 'th' if 11<=d<=13 else {1:'st',2:'nd',3:'rd'}.get(d%10, 'th')
+
+    def __custom_strftime(self, format, t):
+        return t.strftime(format).replace('{S}', str(t.day) + self.__date_suffix(t.day))
 
 if __name__ == "__main__":
     bot = Bot()
