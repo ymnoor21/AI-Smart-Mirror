@@ -158,8 +158,10 @@ class Bot(object):
             requests.get("http://localhost:8080/statement?text=%s" % screen_text)
 
     def __time_action(self):
-        time_now = datetime.datetime.now().strftime("%I %M %p")
-        self.__text_action(time_now)
+        text_format_time = datetime.datetime.now().strftime("%I %M %p")
+        time_now = datetime.datetime.now().strftime("%I:%M %p")
+        requests.get("http://localhost:8080/statement?text=%s" % time_now)
+        self.speech.synthesize_text(text_format_time)
 
     def __date_action(self):
         time_now = self.__custom_strftime("%B {S} %Y", datetime.datetime.now())
