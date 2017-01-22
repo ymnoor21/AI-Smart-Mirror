@@ -69,7 +69,11 @@ class Vision(object):
             # Draw a rectangle around the faces
             for (x, y, w, h) in faces:
                 counter = counter + 1
-                cv2.imwrite('models/userimages/user.'+str(id)+"."+str(counter)+".jpg", gray[y:y+h, x:x+w])
+                cv2.imwrite('models/userimages/user.' +
+                            str(id) + "." + 
+                            str(counter) + ".jpg", 
+                            gray[y:y+h, x:x+w])
+
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
                 cv2.waitKey(100)
 
