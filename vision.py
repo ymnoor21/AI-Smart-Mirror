@@ -1,9 +1,11 @@
-import sys
+import sys, os
 import numpy as np
+from PIL import Image
 
 vision_enabled = False
 try:
     import cv2
+    import cv2.face
     vision_enabled = True
 except Exception as e:
     print("Warning: OpenCV not installed. To use facial recognition, make sure you've properly configured OpenCV.")
@@ -88,6 +90,32 @@ class Vision(object):
         video_capture.release()
         cv2.destroyAllWindows()
 
+    def train_recognizer(self):
+        recognizer = cv2.face.createLBPHFaceRecognizer()
+        file_path = 'models/userimages'
+
+        imagePaths = [
+            os.path.join(file_path, f) 
+            for f in os.listdir(file_path) 
+            if f not in ['.DS_Store', '.gitignore']
+        ]
+        faces = []
+        IDs = []
+
+        for imagePath in imagePaths:
+            faceImg = Image.open(imagePath).convert('L')
+            faceNp = np.array(faceImg, 'uint8')
+            ID = int(os.path.split(imagePath)[-1].split('.')[1])
+            faces.append(faceNp)
+            print(ID)
+            IDs.append(ID)
+            cv2.imshow('training', faceNp)
+            cv2.waitKey(10)
+        
+        recognizer.train(faces, np.array(IDs))
+        recognizer.save('models/recognizer/trainningData.yml')
+        cv2.destroyAllWindows()
+
     def recognize_face(self):
         """
         Wait until a face is recognized. If openCV is configured, always return true
@@ -124,4 +152,4 @@ class Vision(object):
 
 if __name__ == "__main__":
     v = Vision()
-    v.create_face_dataset()
+    v.train_recognizer()
