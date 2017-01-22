@@ -115,6 +115,49 @@ class Vision(object):
         recognizer.save('models/recognizer/trainningData.yml')
         cv2.destroyAllWindows()
 
+    def identify_face(self):
+        face_cascade = cv2.CascadeClassifier(self.facial_recognition_model)
+        video_capture = cv2.VideoCapture(self.camera)
+
+        recognizer = cv2.face.createLBPHFaceRecognizer()
+        recognizer.load("models/recognizer/trainningData.yml")
+
+        id = 0
+
+        font = cv2.FONT_HERSHEY_SIMPLEX
+
+        while True:
+            ret, frame = video_capture.read()
+
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+            faces = face_cascade.detectMultiScale(
+                gray,
+                scaleFactor=1.1,
+                minNeighbors=5,
+                minSize=(30, 30),
+                flags=cv2.CASCADE_SCALE_IMAGE
+            )
+
+            for (x, y, w, h) in faces:
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+                id, conf = recognizer.predict(gray[y:y+h, x:x+w])
+
+                if id == 1:
+                    name = "Yamin"
+                elif id == 2:
+                    name = "Sadia"
+
+                cv2.putText(frame, str(name), (x, y+h+30), font, 1, (255, 0, 0), 2)
+            
+            cv2.imshow('Face', frame)
+
+            if cv2.waitKey(1) == ord('q'):
+                break
+
+        video_capture.release()
+        cv2.destroyAllWindows()
+
     def recognize_face(self):
         """
         Wait until a face is recognized. If openCV is configured, always return true
@@ -151,4 +194,4 @@ class Vision(object):
 
 if __name__ == "__main__":
     v = Vision()
-    v.train_recognizer()
+    v.identify_face()
