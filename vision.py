@@ -14,7 +14,7 @@ class Vision(object):
         self.facial_recognition_model = facial_recognition_model
         self.camera = camera
 
-    def face_detect(self):
+    def detect_face(self):
         # face_cascade = cv2.CascadeClassifier('models/classifiers/haarcascades/haarcascade_frontalface_default.xml')
         face_cascade = cv2.CascadeClassifier(self.facial_recognition_model)
         video_capture = cv2.VideoCapture(self.camera)
@@ -83,4 +83,4 @@ class Vision(object):
 
 if __name__ == "__main__":
     v = Vision()
-    v.face_detect()
+    v.detect_face()
