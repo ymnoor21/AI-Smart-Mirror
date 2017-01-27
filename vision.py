@@ -1,6 +1,8 @@
 import sys, os
 import numpy as np
+import subprocess
 from PIL import Image
+from config import Config
 
 vision_enabled = False
 try:
@@ -115,7 +117,7 @@ class Vision(object):
         recognizer.save('models/recognizer/trainningData.yml')
         cv2.destroyAllWindows()
 
-    def identify_face(self):
+    def identify_face_lbph(self):
         face_cascade = cv2.CascadeClassifier(self.facial_recognition_model)
         video_capture = cv2.VideoCapture(self.camera)
 
@@ -147,6 +149,14 @@ class Vision(object):
                     name = "Yamin"
                 elif id == 2:
                     name = "Sadia"
+                elif id == 3:
+                    name = "Omi"
+                elif id == 4:
+                    name = "Ankhi"
+                else:
+                    name = "Unknown"
+
+                print(id, name, conf)
 
                 cv2.putText(frame, str(name), (x, y+h+30), font, 1, (255, 0, 0), 2)
             
@@ -157,6 +167,69 @@ class Vision(object):
 
         video_capture.release()
         cv2.destroyAllWindows()
+
+    def identify_face2_svm(self):
+        face_cascade = cv2.CascadeClassifier(self.facial_recognition_model)
+        video_capture = cv2.VideoCapture(self.camera)
+
+        recognizer = cv2.face.createLBPHFaceRecognizer()
+        recognizer.load("models/recognizer/trainningData.yml")
+
+        id = 0
+
+        font = cv2.FONT_HERSHEY_SIMPLEX
+
+        # while True:
+        ret, frame = video_capture.read()
+
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+        faces = face_cascade.detectMultiScale(
+            gray,
+            scaleFactor=1.1,
+            minNeighbors=5,
+            minSize=(30, 30),
+            flags=cv2.CASCADE_SCALE_IMAGE
+        )
+
+        people = []
+
+        for (x, y, w, h) in faces:
+            img_name = 'models/tmpimages/user.' + str(id) + ".jpg"
+
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            cv2.imwrite(img_name, gray[y:y+h, x:x+w])
+
+            docker_command = "docker exec -it " + \
+                Config.openface_docker_container_id + \
+                " /bin/bash " \
+                "-c \"cd /root/openface && " \
+                "./demos/classifier.py infer " \
+                "./generated-embeddings/classifier.pkl " \
+                "/host/Users/" + img_name + "\""
+            
+            p = subprocess.Popen(
+                    docker_command, 
+                    shell=True, 
+                    stdout=subprocess.PIPE, 
+                    stderr=subprocess.STDOUT
+                )
+
+            for line in p.stdout.readlines():
+                if "Predict" in line:
+                    literals = line.split(" ")
+
+                    people.append({
+                        'name': literals[1],
+                        'confidence': literals[3],
+                    })
+
+        cv2.imshow('Faces', frame)
+
+        video_capture.release()
+        cv2.destroyAllWindows()
+
+        return people
 
     def recognize_face(self):
         """
@@ -194,4 +267,8 @@ class Vision(object):
 
 if __name__ == "__main__":
     v = Vision()
-    v.identify_face()
+    # v.detect_face()
+    # v.create_face_dataset()
+    # v.train_recognizer()
+    # v.identify_face()
+    # print(v.identify_face2_svm())
