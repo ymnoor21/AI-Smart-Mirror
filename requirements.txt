@@ -7,3 +7,4 @@ feedparser
 numpy
 kodi-json
 git+https://github.com/mobolic/facebook-sdk.git#egg=facebook-sdk
+Pillow
