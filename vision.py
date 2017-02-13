@@ -199,7 +199,7 @@ class Vision(object):
         video_capture.release()
         cv2.destroyAllWindows()
 
-    def identify_face2_svm(self):
+    def identify_face_by_linearsvm(self):
         face_cascade = cv2.CascadeClassifier(self.facial_recognition_model)
         video_capture = cv2.VideoCapture(self.camera)
 
