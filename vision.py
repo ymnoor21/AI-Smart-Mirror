@@ -1,6 +1,7 @@
 import sys, os
 import numpy as np
 import subprocess
+import paramiko
 from PIL import Image
 from config import Config
 
@@ -232,7 +233,7 @@ class Vision(object):
             cv2.imwrite(img_name, gray[y:y+h, x:x+w])
 
             docker_command = "docker exec -it " + \
-                Config.openface_docker_container_id + \
+                Config.OPENFACE_DOCKER_CONTAINER_ID + \
                 " /bin/bash " \
                 "-c \"cd /root/openface && " \
                 "./demos/classifier.py infer " \
@@ -256,6 +257,68 @@ class Vision(object):
                     })
 
         cv2.imshow('Faces', frame)
+
+        video_capture.release()
+        cv2.destroyAllWindows()
+
+        return people
+
+    def identify_face_by_linearsvm2(self):
+        face_cascade = cv2.CascadeClassifier(self.facial_recognition_model)
+        video_capture = cv2.VideoCapture(self.camera)
+
+        recognizer = cv2.face.createLBPHFaceRecognizer()
+        recognizer.load("models/recognizer/trainningData.yml")
+
+        id = 0
+
+        font = cv2.FONT_HERSHEY_SIMPLEX
+
+        # while True:
+        ret, frame = video_capture.read()
+
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+        faces = face_cascade.detectMultiScale(
+            gray,
+            scaleFactor=1.1,
+            minNeighbors=5,
+            minSize=(30, 30),
+            flags=cv2.CASCADE_SCALE_IMAGE
+        )
+
+        people = []
+        imagepath = []
+
+        remotepath = Config.FR_PC_IMG_UPLOAD_PATH
+
+        for (x, y, w, h) in faces:
+            image = Config.IMG_SAVE_PATH + '/user.' + str(id) + ".jpg"
+            imagepath.append(Config.DOCKER_HOST_IMG_PATH + '/user.' + str(id) + '.jpg')
+            cv2.imwrite(image, gray[y:y+h, x:x+w])
+
+        os.system("scp -r " + Config.IMG_SAVE_PATH + "/* " + 
+            Config.FR_PC_USER + "@" + Config.FR_PC_HOST + ":" + remotepath)
+
+        client = paramiko.SSHClient()
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        client.connect(Config.FR_PC_HOST, username=Config.FR_PC_USER, password=Config.FR_PC_PASS)
+
+        images = (imagepath.join(" ") if len(imagepath) > 1 else imagepath[0])
+
+        stdin, stdout, stderr = client.exec_command(
+            'docker exec -i ' + Config.OPENFACE_DOCKER_CONTAINER_ID + 
+            ' /bin/bash -c "cd /root/openface && ./demos/classifier.py infer '
+            './generated-embeddings/classifier.pkl ' + images + '"'
+        )
+
+        for line in stdout:
+            strippedLine = line.strip('\n')
+            if "Predict" in strippedLine:
+                splitLine = strippedLine.split(" ")
+                people.append({'name': splitLine[1], 'confidence': splitLine[3]})
+
+        client.close()
 
         video_capture.release()
         cv2.destroyAllWindows()
@@ -302,4 +365,4 @@ if __name__ == "__main__":
     # v.create_face_dataset()
     # v.train_recognizer()
     # v.identify_face()
-    # print(v.identify_face2_svm())
+    # v.identify_face_by_linearsvm2()
