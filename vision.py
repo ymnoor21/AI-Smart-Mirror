@@ -265,6 +265,8 @@ class Vision(object):
         return people
 
     def identify_face_by_linearsvm2(self):
+        method_start = time.time()
+
         if vision_enabled is False:  # if opencv is not able to be imported, always return True
             return True
 
@@ -342,6 +344,9 @@ class Vision(object):
 
         video_capture.release()
         cv2.destroyAllWindows()
+        method_end = time.time()
+
+        print(method_end - method_start)
 
         return people
 
