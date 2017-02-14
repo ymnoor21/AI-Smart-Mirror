@@ -305,7 +305,7 @@ class Vision(object):
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         client.connect(Config.FR_PC_HOST, username=Config.FR_PC_USER, password=Config.FR_PC_PASS)
 
-        images = (imagepath.join(" ") if len(imagepath) > 1 else imagepath[0])
+        images = (" ".join(imagepath) if len(imagepath) > 1 else imagepath[0])
 
         stdin, stdout, stderr = client.exec_command(
             'docker exec -i ' + Config.OPENFACE_DOCKER_CONTAINER_ID + 
@@ -323,6 +323,8 @@ class Vision(object):
 
         video_capture.release()
         cv2.destroyAllWindows()
+
+        print(people)
 
         return people
 
