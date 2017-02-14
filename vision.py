@@ -292,6 +292,12 @@ class Vision(object):
 
         remotepath = Config.FR_PC_IMG_UPLOAD_PATH
 
+        dir = Config.IMG_SAVE_PATH
+        files = os.listdir(dir)
+        for file in files:
+            if file.endswith(".jpg"):
+                os.remove(os.path.join(dir, file))
+
         for (x, y, w, h) in faces:
             image = Config.IMG_SAVE_PATH + '/user.' + str(id) + ".jpg"
             imagepath.append(Config.DOCKER_HOST_IMG_PATH + '/user.' + str(id) + '.jpg')
