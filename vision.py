@@ -264,28 +264,11 @@ class Vision(object):
         return people
 
     def identify_face_by_linearsvm2(self):
+        if vision_enabled is False:  # if opencv is not able to be imported, always return True
+            return True
+
         face_cascade = cv2.CascadeClassifier(self.facial_recognition_model)
         video_capture = cv2.VideoCapture(self.camera)
-
-        recognizer = cv2.face.createLBPHFaceRecognizer()
-        recognizer.load("models/recognizer/trainningData.yml")
-
-        id = 0
-
-        font = cv2.FONT_HERSHEY_SIMPLEX
-
-        # while True:
-        ret, frame = video_capture.read()
-
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-        faces = face_cascade.detectMultiScale(
-            gray,
-            scaleFactor=1.1,
-            minNeighbors=5,
-            minSize=(30, 30),
-            flags=cv2.CASCADE_SCALE_IMAGE
-        )
 
         people = []
         imagepath = []
@@ -298,11 +281,30 @@ class Vision(object):
             if file.endswith(".jpg"):
                 os.remove(os.path.join(dir, file))
 
-        for (x, y, w, h) in faces:
-            image = Config.IMG_SAVE_PATH + '/user.' + str(id) + ".jpg"
-            imagepath.append(Config.DOCKER_HOST_IMG_PATH + '/user.' + str(id) + '.jpg')
-            cv2.imwrite(image, gray[y:y+h, x:x+w])
-            id = id + 1
+        id = 0
+        counter = 1
+        while True:
+            ret, frame = video_capture.read()
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+            faces = face_cascade.detectMultiScale(
+                gray,
+                scaleFactor=1.1,
+                minNeighbors=5,
+                minSize=(30, 30),
+                flags=cv2.CASCADE_SCALE_IMAGE
+            )
+
+            if len(faces) > 0:
+                for (x, y, w, h) in faces:
+                    counter = counter + 1
+                    image = Config.IMG_SAVE_PATH + '/user.' + str(id) + ".jpg"
+                    imagepath.append(Config.DOCKER_HOST_IMG_PATH + '/user.' + str(id) + '.jpg')
+                    cv2.imwrite(image, gray[y:y+h, x:x+w])
+                    id = id + 1
+
+            if counter > 1:
+                break
 
         os.system("scp -r " + Config.IMG_SAVE_PATH + "/* " + 
             Config.FR_PC_USER + "@" + Config.FR_PC_HOST + ":" + remotepath)
@@ -373,5 +375,5 @@ if __name__ == "__main__":
     # print(v.detect_face())
     # v.create_face_dataset()
     # v.train_recognizer()
-    # v.identify_face()
+    # print(v.recognize_face())
     v.identify_face_by_linearsvm2()
