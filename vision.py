@@ -25,7 +25,7 @@ class Vision(object):
         video_capture = cv2.VideoCapture(self.camera)
         flag = False
 
-	# Capture frame-by-frame
+    # Capture frame-by-frame
         ret, frame = video_capture.read()
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
