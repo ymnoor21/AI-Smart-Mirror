@@ -296,6 +296,7 @@ class Vision(object):
             image = Config.IMG_SAVE_PATH + '/user.' + str(id) + ".jpg"
             imagepath.append(Config.DOCKER_HOST_IMG_PATH + '/user.' + str(id) + '.jpg')
             cv2.imwrite(image, gray[y:y+h, x:x+w])
+            id = id + 1
 
         os.system("scp -r " + Config.IMG_SAVE_PATH + "/* " + 
             Config.FR_PC_USER + "@" + Config.FR_PC_HOST + ":" + remotepath)
@@ -365,4 +366,4 @@ if __name__ == "__main__":
     # v.create_face_dataset()
     # v.train_recognizer()
     # v.identify_face()
-    # v.identify_face_by_linearsvm2()
+    v.identify_face_by_linearsvm2()
