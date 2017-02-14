@@ -2,6 +2,7 @@ import sys, os
 import numpy as np
 import subprocess
 import paramiko
+import time
 from PIL import Image
 from config import Config
 
@@ -283,6 +284,9 @@ class Vision(object):
 
         id = 0
         counter = 1
+        start = time.time()
+        face_found = False
+
         while True:
             ret, frame = video_capture.read()
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -303,36 +307,41 @@ class Vision(object):
                     cv2.imwrite(image, gray[y:y+h, x:x+w])
                     id = id + 1
 
+            end = time.time()
+            
             if counter > 1:
+                face_found = True
+                break
+            elif end - start > Config.WAIT_SECONDS_TILL_FACE_IS_FOUND:
+                face_found = False
                 break
 
-        os.system("scp -r " + Config.IMG_SAVE_PATH + "/* " + 
-            Config.FR_PC_USER + "@" + Config.FR_PC_HOST + ":" + remotepath)
+        if face_found:
+            os.system("scp -r " + Config.IMG_SAVE_PATH + "/* " + 
+                Config.FR_PC_USER + "@" + Config.FR_PC_HOST + ":" + remotepath)
 
-        client = paramiko.SSHClient()
-        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        client.connect(Config.FR_PC_HOST, username=Config.FR_PC_USER, password=Config.FR_PC_PASS)
+            client = paramiko.SSHClient()
+            client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            client.connect(Config.FR_PC_HOST, username=Config.FR_PC_USER, password=Config.FR_PC_PASS)
 
-        images = (" ".join(imagepath) if len(imagepath) > 1 else imagepath[0])
+            images = (" ".join(imagepath) if len(imagepath) > 1 else imagepath[0])
 
-        stdin, stdout, stderr = client.exec_command(
-            'docker exec -i ' + Config.OPENFACE_DOCKER_CONTAINER_ID + 
-            ' /bin/bash -c "cd /root/openface && ./demos/classifier.py infer '
-            './generated-embeddings/classifier.pkl ' + images + '"'
-        )
+            stdin, stdout, stderr = client.exec_command(
+                'docker exec -i ' + Config.OPENFACE_DOCKER_CONTAINER_ID + 
+                ' /bin/bash -c "cd /root/openface && ./demos/classifier.py infer '
+                './generated-embeddings/classifier.pkl ' + images + '"'
+            )
 
-        for line in stdout:
-            strippedLine = line.strip('\n')
-            if "Predict" in strippedLine:
-                splitLine = strippedLine.split(" ")
-                people.append({'name': splitLine[1], 'confidence': splitLine[3]})
+            for line in stdout:
+                strippedLine = line.strip('\n')
+                if "Predict" in strippedLine:
+                    splitLine = strippedLine.split(" ")
+                    people.append({'name': splitLine[1], 'confidence': splitLine[3]})
 
-        client.close()
+            client.close()
 
         video_capture.release()
         cv2.destroyAllWindows()
-
-        print(people)
 
         return people
 
@@ -376,4 +385,4 @@ if __name__ == "__main__":
     # v.create_face_dataset()
     # v.train_recognizer()
     # print(v.recognize_face())
-    v.identify_face_by_linearsvm2()
+    print(v.identify_face_by_linearsvm2())
