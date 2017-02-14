@@ -346,8 +346,6 @@ class Vision(object):
         cv2.destroyAllWindows()
         method_end = time.time()
 
-        print(method_end - method_start)
-
         return people
 
     def recognize_face(self):
