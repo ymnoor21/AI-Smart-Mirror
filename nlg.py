@@ -36,37 +36,21 @@ class NLG(object):
 
         user_name = self.user_name
         if user_name is None:
-            user_name = ""
+            user_name = "Stranger"
 
-        simple_acknoledgement = [
-            "Yes?",
-            "What can I do for you?",
-            "How can I help?"
-        ]
+        date = datetime.datetime.now()
 
         personal_acknowledgement = [
             "How can I help you today, %s" % user_name,
             "How can I help you, %s" % user_name,
             "What can I do for you, %s" % user_name,
             "Hi %s, what can I do for you?" % user_name,
-            "Hey %s, what can I do for you?" % user_name
+            "Hey %s, what can I do for you?" % user_name,
+            "Good %s %s. What can I do for you?" % (self.time_of_day(date), user_name)
         ]
 
-        choice = 0
-        if self.user_name is not None:
-            choice = random.randint(0, 2)
-        else:
-            choice = random.randint(0,1)
-
-        ret_phrase = ""
-
-        if choice == 0:
-            ret_phrase = random.choice(simple_acknoledgement)
-        elif choice == 1:
-            date = datetime.datetime.now()
-            ret_phrase = "Good %s. What can I do for you?" % self.time_of_day(date)
-        else:
-            ret_phrase = random.choice(personal_acknowledgement)
+        choice = random.randint(0, (len(personal_acknowledgement)-1))
+        ret_phrase = personal_acknowledgement[choice]
 
         return ret_phrase
 
