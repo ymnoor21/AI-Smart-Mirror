@@ -9,11 +9,13 @@ import datetime
 import dateutil.parser
 import json
 import traceback
+import time
 from nlg import NLG
 from speech import Speech
 from knowledge import Knowledge
 from vision import Vision
 from config import Config
+from helper import Helper
 import facebookknowledge as fbk
 
 my_name = Config.my_name
@@ -31,6 +33,7 @@ class Bot(object):
         self.speech = Speech(launch_phrase=launch_phrase, debugger_enabled=debugger_enabled)
         self.knowledge = Knowledge(weather_api_token)
         self.vision = Vision(camera=camera)
+        self.helper = Helper()
 
     def start(self):
         """
@@ -40,14 +43,50 @@ class Bot(object):
         while True:
             requests.get("http://localhost:8080/clear")
             if self.vision.detect_face():
-                print "Found face"
-                if use_launch_phrase:
-                    recognizer, audio = self.speech.listen_for_audio()
-                    if self.speech.is_call_to_action(recognizer, audio):
-                        self.__acknowledge_action()
-                        self.decide_action()
+                if self.helper.is_timer_set() and \
+                self.helper.timer_expired() is False:
+                    if self.helper.is_personalized_data_accessible():
+                        personalized_data = self.helper.get_personalized_data()
+                        if personalized_data:
+                            _user_name = personalized_data[0]['name']
+                            _api_info = personalized_data[0]['api']
+                    self.helper.reset_timer()
                 else:
-                    self.decide_action()
+                    retry = 0
+                    _user_name = "Stranger!"
+                    _api_info = ""
+
+                    while retry < 2:
+                        persons = self.vision.identify_face_by_linearsvm2()
+
+                        if persons:
+                            if persons[0]['confidence'] >= 0.5:
+                                self.helper.set_personalized_data(persons)
+                                personalized_data = self.helper.get_personalized_data()
+                                
+                                if personalized_data:
+                                    _user_name = personalized_data[0]['name']
+                                    _api_info = personalized_data[0]['api']
+                                
+                                break
+
+                        retry = retry + 1
+
+                        if retry == 2:
+                            self.helper.reset_personalized_data()
+
+                    self.helper.set_timer()
+                    self.nlg = NLG(user_name=_user_name)
+                    self.__acknowledge_action()
+                
+                recognizer, audio = self.speech.listen_for_audio()
+                self.decide_action()
+                self.helper.reset_timer()
+            else:
+                if self.helper.is_timer_set() and \
+                self.helper.is_session_expired() and \
+                self.helper.is_personalized_data_accessible():
+                    self.helper.reset_personalized_data()
 
     def decide_action(self):
         """

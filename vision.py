@@ -307,7 +307,7 @@ class Vision(object):
                 strippedLine = line.strip('\n')
                 if "Predict" in strippedLine:
                     splitLine = strippedLine.split(" ")
-                    people.append({'name': splitLine[1], 'confidence': splitLine[3]})
+                    people.append({'name': splitLine[1], 'confidence': splitLine[3], 'api': None})
 
             client.close()
 
