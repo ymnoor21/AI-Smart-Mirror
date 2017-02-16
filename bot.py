@@ -50,38 +50,38 @@ class Bot(object):
                         if personalized_data:
                             _user_name = personalized_data[0]['name']
                             _api_info = personalized_data[0]['api']
+                    
                     self.helper.reset_timer()
                 else:
+                    self.helper.reset_personalized_data()
+                    
                     retry = 0
-                    _user_name = "Stranger!"
-                    _api_info = ""
+                    _user_name = Config.STRANGER_NAME
+                    _api_info = None
 
-                    while retry < 2:
+                    while retry < Config.MAX_RETRY:
                         persons = self.vision.identify_face_by_linearsvm2()
 
                         if persons:
-                            if persons[0]['confidence'] >= 0.5:
+                            if persons[0]['confidence'] >= Config.MIN_CONFIDENCE:
                                 self.helper.set_personalized_data(persons)
-                                personalized_data = self.helper.get_personalized_data()
                                 
-                                if personalized_data:
-                                    _user_name = personalized_data[0]['name']
-                                    _api_info = personalized_data[0]['api']
+                                _user_name = persons[0]['name']
+                                _api_info = persons[0]['api']
                                 
                                 break
 
                         retry = retry + 1
 
-                        if retry == 2:
+                        if retry == Config.MAX_RETRY:
                             self.helper.reset_personalized_data()
 
                     self.helper.set_timer()
                     self.nlg = NLG(user_name=_user_name)
                     self.__acknowledge_action()
                 
-                recognizer, audio = self.speech.listen_for_audio()
+                # recognizer, audio = self.speech.listen_for_audio()
                 self.decide_action()
-                self.helper.reset_timer()
             else:
                 if self.helper.is_timer_set() and \
                 self.helper.is_session_expired() and \
@@ -94,6 +94,9 @@ class Bot(object):
         :return:
         """
         recognizer, audio = self.speech.listen_for_audio()
+
+        if audio is None:
+            return False
 
         # received audio data, now we'll recognize it using Google Speech Recognition
         speech = self.speech.google_speech_recognition(recognizer, audio)

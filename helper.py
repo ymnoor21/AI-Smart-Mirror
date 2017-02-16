@@ -14,6 +14,10 @@ class Helper(object):
         else:
             return False
 
+    def reset_expiry(self):
+        Config.EXPIRY_TIME = None
+        Config.MAX_FR_DETECT_EXPIRY_TIME = None
+
     def timer_expired(self):
         return self.is_expired(Config.EXPIRY_TIME)
 

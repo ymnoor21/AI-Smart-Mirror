@@ -3,6 +3,7 @@
 import speech_recognition as sr
 import os
 import requests
+from config import Config
 from gtts import gTTS
 from pydub import AudioSegment
 from pydub.playback import play
@@ -34,7 +35,12 @@ class Speech(object):
             r.adjust_for_ambient_noise(source)
             self.__debugger_microphone(enable=True)
             print "I'm listening"
-            audio = r.listen(source)
+            try:
+                audio = r.listen(source, Config.AUDIO_WAIT_BEFORE_GIVING_UP)
+            except sr.WaitTimeoutError:
+                self.__debugger_microphone(enable=False)
+                print "Audio not found"
+                return r, None
 
         self.__debugger_microphone(enable=False)
         print "Found audio"

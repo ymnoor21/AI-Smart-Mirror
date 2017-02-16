@@ -3,6 +3,7 @@ import random
 import datetime
 from py4j_server import launch_py4j_server
 from py4j.java_gateway import java_import
+from config import Config
 
 gateway = launch_py4j_server()
 
@@ -36,7 +37,7 @@ class NLG(object):
 
         user_name = self.user_name
         if user_name is None:
-            user_name = "Stranger"
+            user_name = Config.STRANGER_NAME
 
         date = datetime.datetime.now()
 
