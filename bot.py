@@ -39,7 +39,7 @@ class Bot(object):
         """
         while True:
             requests.get("http://localhost:8080/clear")
-            if self.vision.recognize_face():
+            if self.vision.detect_face():
                 print "Found face"
                 if use_launch_phrase:
                     recognizer, audio = self.speech.listen_for_audio()

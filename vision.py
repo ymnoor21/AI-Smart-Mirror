@@ -20,37 +20,6 @@ class Vision(object):
         self.facial_recognition_model = facial_recognition_model
         self.camera = camera
 
-    def detect_face(self):
-        face_cascade = cv2.CascadeClassifier(self.facial_recognition_model)
-        video_capture = cv2.VideoCapture(self.camera)
-        flag = False
-
-    # Capture frame-by-frame
-        ret, frame = video_capture.read()
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-        faces = face_cascade.detectMultiScale(
-            gray,
-            scaleFactor=1.1,
-            minNeighbors=5,
-            minSize=(30, 30),
-            flags=cv2.CASCADE_SCALE_IMAGE
-        )
-
-        for (x, y, w, h) in faces:
-            if x > 0 and y > 0 and w > 0 and h > 0:
-                flag = True
-            else:
-                flag = False
-
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            flag = False
-
-        # When everything is done, release the capture
-        video_capture.release()
-        cv2.destroyAllWindows()
-        return flag
-
     def detect_face_with_ractangle(self):
         face_cascade = cv2.CascadeClassifier(self.facial_recognition_model)
         video_capture = cv2.VideoCapture(self.camera)
@@ -348,7 +317,7 @@ class Vision(object):
 
         return people
 
-    def recognize_face(self):
+    def detect_face(self):
         """
         Wait until a face is recognized. If openCV is configured, always return true
         :return:
@@ -388,4 +357,4 @@ if __name__ == "__main__":
     # v.create_face_dataset()
     # v.train_recognizer()
     # print(v.recognize_face())
-    print(v.identify_face_by_linearsvm2())
+    # print(v.identify_face_by_linearsvm2())
